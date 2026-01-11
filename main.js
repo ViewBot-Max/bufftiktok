@@ -1,73 +1,89 @@
-// main.js
 let currentService = 'Views';
 let currentQuantity = 100;
+
 const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1459513490082365494/6sANPpkT-VjNS9vajuGsGiyLyQfa68X-g0TVtY5IFFRUbqB0hcZTu6Zez5IFR9GqU0Ve";
 const COOLDOWN_TIME = 5 * 60 * 1000; // 5 phút
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     initTypingEffect();
     checkCooldown();
-    initLiveStats(); // Khởi tạo các con số thống kê ảo
+    initLiveStats();
 });
 
-// Hàm tạo số ảo nhảy liên tục cho sinh động
+/* ================= LIVE STATS ================= */
 function initLiveStats() {
     const todayElement = document.getElementById('today-order-count');
     const totalElement = document.getElementById('live-order-count');
     const onlineElement = document.getElementById('online-users');
 
-    // Thiết lập giá trị ban đầu lớn như bạn muốn
     let todayOrders = 1240;
     let totalOrders = 45892;
-    
-    if(todayElement) todayElement.innerText = todayOrders.toLocaleString();
-    if(totalElement) totalElement.innerText = totalOrders.toLocaleString();
 
-    // Cập nhật người dùng online và đơn hàng ảo mỗi vài giây
+    if (todayElement) todayElement.innerText = todayOrders.toLocaleString();
+    if (totalElement) totalElement.innerText = totalOrders.toLocaleString();
+
     setInterval(() => {
-        // Người dùng online nhảy từ 15-30
         const online = Math.floor(Math.random() * 15) + 15;
-        if(onlineElement) onlineElement.innerText = online;
+        if (onlineElement) onlineElement.innerText = online;
 
-        // Thỉnh thoảng tăng số đơn hàng lên cho giống thật
-        if(Math.random() > 0.7) {
+        if (Math.random() > 0.7) {
             todayOrders++;
             totalOrders++;
-            if(todayElement) todayElement.innerText = todayOrders.toLocaleString();
-            if(totalElement) totalElement.innerText = totalOrders.toLocaleString();
+            if (todayElement) todayElement.innerText = todayOrders.toLocaleString();
+            if (totalElement) totalElement.innerText = totalOrders.toLocaleString();
         }
     }, 3000);
 }
 
+/* ================= MODAL ================= */
 function openServiceModal(serviceName, quantity) {
     currentService = serviceName;
     currentQuantity = quantity;
-    
-    document.getElementById('modal-service-name').innerText = serviceName;
-    document.getElementById('summary-service').innerText = 'TikTok ' + serviceName;
-    document.getElementById('summary-quantity').innerText = quantity + " (Miễn phí)";
-    
+
+    const serviceNameEl = document.getElementById('modal-service-name');
+    const summaryServiceEl = document.getElementById('summary-service');
+    const summaryQuantityEl = document.getElementById('summary-quantity');
     const modal = document.getElementById('tiktokModal');
+
+    if (!serviceNameEl || !summaryServiceEl || !summaryQuantityEl || !modal) {
+        console.error('❌ Thiếu element trong modal');
+        return;
+    }
+
+    serviceNameEl.innerText = serviceName;
+    summaryServiceEl.innerText = 'TikTok ' + serviceName;
+    summaryQuantityEl.innerText = quantity + ' (Miễn phí)';
+
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
+/* ================= SUBMIT DISCORD ================= */
 async function submitToDiscord() {
     const linkInput = document.getElementById('tiktok-link');
     const btnSubmit = document.getElementById('btnSubmit');
+    const loading = document.getElementById('loadingOverlay');
+
+    if (!linkInput || !btnSubmit || !loading) return;
+
     const link = linkInput.value.trim();
-    
     if (!link) {
-        Swal.fire({ title: 'Lỗi', text: 'Vui lòng nhập đường link TikTok!', icon: 'error', position: 'top' });
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Vui lòng nhập link TikTok!',
+            icon: 'error',
+            position: 'top'
+        });
         return;
     }
-    
-    document.getElementById('loadingOverlay').classList.add('active');
+
+    loading.classList.add('active');
 
     const payload = {
         content: "🚀 **ĐƠN HÀNG MỚI TỪ VIRAL TIKTOK**",
@@ -93,11 +109,11 @@ async function submitToDiscord() {
         if (response.ok) {
             const expiryTime = Date.now() + COOLDOWN_TIME;
             localStorage.setItem('tiktok_cooldown', expiryTime);
-            
+
             Swal.fire({
                 icon: 'success',
                 title: 'Gửi thành công!',
-                text: `Yêu cầu đã gửi tới hệ thống. Vui lòng đợi 5 phút để tiếp tục.`,
+                text: 'Vui lòng đợi 5 phút để gửi tiếp.',
                 confirmButtonColor: '#FF0050',
                 position: 'top'
             });
@@ -106,13 +122,19 @@ async function submitToDiscord() {
             closeModal('tiktokModal');
             startCooldownTimer(expiryTime);
         }
-    } catch (error) {
-        Swal.fire({ title: 'Lỗi', text: 'Không thể kết nối máy chủ!', icon: 'error', position: 'top' });
+    } catch (err) {
+        Swal.fire({
+            title: 'Lỗi',
+            text: 'Không thể kết nối Discord!',
+            icon: 'error',
+            position: 'top'
+        });
     } finally {
-        document.getElementById('loadingOverlay').classList.remove('active');
+        loading.classList.remove('active');
     }
 }
 
+/* ================= COOLDOWN ================= */
 function checkCooldown() {
     const expiryTime = localStorage.getItem('tiktok_cooldown');
     if (expiryTime && Date.now() < expiryTime) {
@@ -122,8 +144,9 @@ function checkCooldown() {
 
 function startCooldownTimer(expiryTime) {
     const btnSubmit = document.getElementById('btnSubmit');
-    
-    const updateTimer = () => {
+    if (!btnSubmit) return;
+
+    const update = () => {
         const remaining = expiryTime - Date.now();
         if (remaining <= 0) {
             btnSubmit.disabled = false;
@@ -133,33 +156,51 @@ function startCooldownTimer(expiryTime) {
         }
 
         btnSubmit.disabled = true;
-        const minutes = Math.floor(remaining / 60000);
-        const seconds = Math.floor((remaining % 60000) / 1000);
-        btnSubmit.innerText = `Thử lại sau ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        setTimeout(updateTimer, 1000);
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        btnSubmit.innerText = `Thử lại sau ${m}:${s < 10 ? '0' : ''}${s}`;
+        setTimeout(update, 1000);
     };
 
-    updateTimer();
+    update();
 }
 
+/* ================= TYPING EFFECT ================= */
 function initTypingEffect() {
     const textElement = document.querySelector('.typing-text');
-    const words = ['Views', 'Hearts', 'Followers', 'Shares'];
-    let wordIndex = 0, charIndex = 0, isDeleting = false;
+    if (!textElement) return;
+
+    const words = ['Views', 'Tim', 'Follower', 'Favourite'];
+    let wordIndex = 0, charIndex = 0, deleting = false;
 
     function type() {
-        if(!textElement) return;
-        const currentWord = words[wordIndex];
-        textElement.textContent = isDeleting ? currentWord.substring(0, charIndex - 1) : currentWord.substring(0, charIndex + 1);
-        charIndex = isDeleting ? charIndex - 1 : charIndex + 1;
+        const word = words[wordIndex];
+        textElement.textContent = deleting
+            ? word.substring(0, charIndex--)
+            : word.substring(0, charIndex++);
 
-        let speed = isDeleting ? 100 : 200;
-        if (!isDeleting && charIndex === currentWord.length) { speed = 2000; isDeleting = true; }
-        else if (isDeleting && charIndex === 0) { isDeleting = false; wordIndex = (wordIndex + 1) % words.length; speed = 500; }
+        let speed = deleting ? 80 : 150;
+
+        if (!deleting && charIndex === word.length) {
+            speed = 1500;
+            deleting = true;
+        } else if (deleting && charIndex === 0) {
+            deleting = false;
+            wordIndex = (wordIndex + 1) % words.length;
+            speed = 400;
+        }
         setTimeout(type, speed);
     }
     type();
 }
 
-function showStatusModal(e) { e.preventDefault(); Swal.fire({title: 'Trạng thái', text: 'Hệ thống ổn định ✅', position: 'top'}); }
-function showTermsModal(e) { e.preventDefault(); Swal.fire({title: 'Điều khoản', text: 'Sử dụng miễn phí, cooldown 5 phút để tránh spam.', position: 'top'}); }
+/* ================= INFO MODAL ================= */
+function showStatusModal(e) {
+    e.preventDefault();
+    Swal.fire({ title: 'Trạng thái', text: 'Hệ thống hoạt động ổn định ✅', position: 'top' });
+}
+
+function showTermsModal(e) {
+    e.preventDefault();
+    Swal.fire({ title: 'Điều khoản', text: 'Miễn phí – cooldown 5 phút.', position: 'top' });
+}
