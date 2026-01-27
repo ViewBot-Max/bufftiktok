@@ -6,7 +6,7 @@ const WEBHOOKS = {
     'Views': 'https://discord.com/api/webhooks/1460526355140841503/BnX3LBBwVKkfaTx149s2ONIhD180dC0o05J1Mwt4YD8-TSw00f9KU6jlAZ3cZkzAYf8L',
     'Tim': 'https://discord.com/api/webhooks/1460526481687183500/D36MPIS_-s1_Gkskd9aMldQRX8u-xseRF7ApH-cOlAYrZqRTKtdCO8j8WKDikgzUd7lu',
     'Favourite': 'https://discord.com/api/webhooks/1460526571185242196/GHbnDe1lYECwPz9czdRQM66hzUSr60BTPnbguJ2yHvc-JijD0jXWtemciU5ZSPi09MGX',
-    'RobloxFollow': 'https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX'
+    'RobloxFollow': 'https://discord.com/api/webhooks/1460526661937401866/wGuVhuXYk8lOF1XGZXWDT4Pr6B53XDIw00rcE9BQcfxwX_mGbJxkI2iBk2qOr5ndO5fm'
 };
 
 const COOLDOWN_TIME = 5 * 60 * 1000;
