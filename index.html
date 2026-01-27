@@ -15,7 +15,7 @@
 <div class="beta-banner">
     <div class="container">
         <i class="fas fa-bolt"></i>
-        <span>Hệ thống vừa cập nhật buff follow trên roblox - Cập nhật 27/01/2026</span>
+        <span>Hệ thống vừa cập nhật Roblox Follow - Cập nhật 27/01/2026</span>
     </div>
 </div>
 
@@ -36,12 +36,12 @@
 <section class="hero">
     <div class="container">
         <h1>Tăng Tương Tác <span class="typing-text"></span><span class="typing-cursor">|</span></h1>
-        <p class="subtitle">Dịch vụ hỗ trợ tăng chỉ số TikTok miễn phí và an toàn tuyệt đối</p>
+        <p class="subtitle">Dịch vụ hỗ trợ tăng chỉ số TikTok & Roblox miễn phí, an toàn</p>
 
         <div class="live-stats">
             <div class="stat-item">
                 <span class="stat-label">Đã gửi hôm nay</span>
-                <span class="stat-value" id="today-order-count">2,840</span>
+                <span class="stat-value" id="today-order-count">12,295</span>
             </div>
             <div class="stat-item">
                 <span class="stat-label">Người dùng online</span>
@@ -59,6 +59,7 @@
         </div>
 
         <div class="features-grid">
+
             <div class="feature-card" onclick="openServiceModal('Views', 100)">
                 <div class="icon-box"><i class="fas fa-eye"></i></div>
                 <h3>Tăng Views</h3>
@@ -80,12 +81,14 @@
                 <button class="btn-tiktok">Chọn</button>
             </div>
 
-            <div class="feature-card" onclick="openServiceModal('Follower', 10)">
-                <div class="icon-box"><i class="fas fa-user-plus"></i></div>
-                <h3>Tăng Follower</h3>
-                <p>Số lượng: 10</p>
+            <!-- ROBLOX FOLLOW -->
+            <div class="feature-card" onclick="openServiceModal('RobloxFollow', 10)">
+                <div class="icon-box"><i class="fas fa-gamepad"></i></div>
+                <h3>Roblox Follow</h3>
+                <p>Số lượng: 15</p>
                 <button class="btn-tiktok">Chọn</button>
             </div>
+
         </div>
     </div>
 </section>
@@ -93,24 +96,31 @@
 <div class="modal" id="tiktokModal">
     <div class="modal-overlay" onclick="closeModal('tiktokModal')"></div>
     <div class="modal-content custom-modal-style">
+
         <div class="modal-header-modern">
-            <h2 id="modal-service-name-main">Lượt xem TikTok</h2>
+            <h2 id="modal-service-name-main">Dịch vụ</h2>
         </div>
-        
+
         <div class="tiktok-circle-icon">
             <i class="fab fa-tiktok"></i>
         </div>
 
-        <p class="modal-promo-text" id="modal-instruction">Nhận ngay 100 lượt xem TikTok miễn phí</p>
+        <p class="modal-promo-text" id="modal-instruction"></p>
 
         <div class="modal-body-modern">
-            <label class="modern-label" id="input-label">Link video TikTok</label>
-            <input type="text" id="tiktok-link" class="modern-input" placeholder="tiktok.com/@username/video/..." autocomplete="off">
-            <p class="modern-hint" id="input-hint-desc">Dán liên kết video TikTok của bạn vào đây.</p>
+            <label class="modern-label" id="input-label"></label>
+            <input
+                type="text"
+                id="tiktok-link"
+                class="modern-input"
+                placeholder=""
+                autocomplete="off"
+            >
+            <p class="modern-hint" id="input-hint-desc"></p>
         </div>
 
         <div class="modal-footer-modern">
-            <button class="btn-modern-submit" id="btnSubmit" onclick="submitToDiscord()">Gửi ý kiến</button>
+            <button class="btn-modern-submit" id="btnSubmit" onclick="submitToDiscord()">Gửi yêu cầu</button>
             <button class="btn-modern-cancel" onclick="closeModal('tiktokModal')">Hủy bỏ</button>
         </div>
     </div>
