@@ -1,312 +1,187 @@
-let currentService = 'Views';
-let currentQuantity = 100;
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViralTikTok - Tăng Tương Tác 2026</title>
+
+<link rel="icon" type="image/png" href="rocket.png">
+<link rel="stylesheet" href="style.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+<div class="beta-banner">
+<div class="container">
+<i class="fas fa-bolt"></i>
+<span>Hệ thống vừa cập nhật TikTok Follow - Cập nhật 10/03/2026</span>
+</div>
+</div>
+
+<nav class="navbar">
+<div class="container nav-container">
+
+<a href="./" class="logo">
+<i class="fab fa-tiktok"></i>
+<span>Viral<span class="highlight">TikTok</span></span>
+</a>
+
+<div class="nav-links">
+<a href="./" class="active">Trang chủ</a>
+<a href="#" onclick="showStatusModal(event)">Trạng thái</a>
+<a href="#" onclick="showTermsModal(event)">Điều khoản</a>
+</div>
+
+</div>
+</nav>
+
+<section class="hero">
+<div class="container">
+
+<h1>
+Tăng Tương Tác
+<span class="typing-text"></span>
+<span class="typing-cursor">|</span>
+</h1>
+
+<p class="subtitle">
+Dịch vụ hỗ trợ tăng chỉ số TikTok & miễn phí, an toàn
+</p>
+
+<div class="live-stats">
+
+<div class="stat-item">
+<span class="stat-label">Đã gửi hôm nay</span>
+<span class="stat-value" id="today-order-count">130</span>
+</div>
+
+<div class="stat-item">
+<span class="stat-label">Người dùng online</span>
+<span class="stat-value" id="online-users">10</span>
+</div>
 
-// ================= WEBHOOKS =================
+</div>
 
-const WEBHOOKS = {
-    Views: "YOUR_WEBHOOK",
-    Tim: "YOUR_WEBHOOK",
-    Favourite: "YOUR_WEBHOOK",
-    RobloxFollow: "YOUR_WEBHOOK"
-};
+</div>
+</section>
 
-const COOLDOWN_TIME = 5 * 60 * 1000;
+<section class="section">
 
-// ================= INIT =================
+<div class="container">
 
-document.addEventListener('DOMContentLoaded', () => {
-    initTyping();
-    initStats();
-    checkCooldown();
-});
+<div class="section-header">
+<h2>Chọn Dịch Vụ</h2>
+<p>Vui lòng chọn loại tương tác bạn cần</p>
+</div>
+
+<div class="features-grid">
 
-// ================= VALIDATION =================
+<div class="feature-card" onclick="openServiceModal('Views', 100)">
+<div class="icon-box">
+<i class="fas fa-eye"></i>
+</div>
+<h3>Tăng Views</h3>
+<p>Số lượng: 100</p>
+<button class="btn-tiktok">Chọn</button>
+</div>
 
-function isValidTikTokLink(url) {
+<div class="feature-card" onclick="openServiceModal('Tim', 10)">
+<div class="icon-box">
+<i class="fas fa-heart"></i>
+</div>
+<h3>Tăng Tim</h3>
+<p>Số lượng: 10</p>
+<button class="btn-tiktok">Chọn</button>
+</div>
 
-    const shortPattern = /^https:\/\/vt\.tiktok\.com\/[\w-]+\/?$/;
-    const videoPattern = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/;
+<div class="feature-card" onclick="openServiceModal('Favourite', 100)">
+<div class="icon-box">
+<i class="fas fa-bookmark"></i>
+</div>
+<h3>Tăng Favourite</h3>
+<p>Số lượng: 100</p>
+<button class="btn-tiktok">Chọn</button>
+</div>
 
-    return videoPattern.test(url) || shortPattern.test(url);
-}
+<!-- ĐÃ SỬA LỖI Ở ĐÂY -->
+<div class="feature-card" onclick="openServiceModal('RobloxFollow', 10)">
+<div class="icon-box">
+<i class="fas fa-gamepad"></i>
+</div>
+<h3>TikTok Follow</h3>
+<p>Số lượng: 10</p>
+<button class="btn-tiktok">Chọn</button>
+</div>
 
-function isValidRobloxUsername(username) {
-    const pattern = /^@[a-zA-Z0-9_]{3,20}$/;
-    return pattern.test(username);
-}
+</div>
+</div>
+</section>
 
-// ================= CHECK VIDEO EXISTS =================
+<div class="modal" id="tiktokModal">
 
-async function checkTikTokVideo(url){
+<div class="modal-overlay" onclick="closeModal('tiktokModal')"></div>
 
-    try{
+<div class="modal-content custom-modal-style">
 
-        const api = "https://www.tiktok.com/oembed?url=" + encodeURIComponent(url);
+<div class="modal-header-modern">
+<h2 id="modal-service-name-main">Dịch vụ</h2>
+</div>
 
-        const res = await fetch(api);
+<div class="tiktok-circle-icon">
+<i class="fab fa-tiktok"></i>
+</div>
 
-        if(!res.ok){
-            return false;
-        }
+<p class="modal-promo-text" id="modal-instruction"></p>
 
-        const data = await res.json();
+<div class="modal-body-modern">
 
-        if(!data.title){
-            return false;
-        }
+<label class="modern-label" id="input-label"></label>
 
-        return true;
+<input
+type="text"
+id="tiktok-link"
+class="modern-input"
+placeholder=""
+autocomplete="off"
+>
 
-    }catch{
+<p class="modern-hint" id="input-hint-desc"></p>
 
-        return false;
+</div>
 
-    }
+<div class="modal-footer-modern">
 
-}
+<button class="btn-modern-submit" id="btnSubmit" onclick="submitToDiscord()">
+Gửi yêu cầu
+</button>
 
-// ================= MODAL =================
+<button class="btn-modern-cancel" onclick="closeModal('tiktokModal')">
+Hủy bỏ
+</button>
 
-function openServiceModal(name, qty) {
+</div>
 
-    currentService = name;
-    currentQuantity = qty;
+</div>
+</div>
 
-    const modal = document.getElementById('tiktokModal');
-    const title = document.getElementById('modal-service-name-main');
-    const instruction = document.getElementById('modal-instruction');
-    const label = document.getElementById('input-label');
-    const hint = document.getElementById('input-hint-desc');
-    const input = document.getElementById('tiktok-link');
+<div class="loading-overlay" id="loadingOverlay">
+<div class="loading-spinner"></div>
+<p>Đang xử lý dữ liệu...</p>
+</div>
 
-    input.value = "";
+<footer class="footer">
+<div class="container">
+<p>© 2026 ViralTikTok - Hệ thống tăng tương tác tự động</p>
+</div>
+</footer>
 
-    if (name === 'RobloxFollow') {
+<script src="main.js"></script>
 
-        title.innerText = "TikTok Follow";
-        instruction.innerText = `Nhận ngay ${qty} follow TikTok miễn phí`;
-        label.innerText = "Link trang cá nhân TikTok";
-        hint.innerText = "Nhập link profile TikTok";
-        input.placeholder = "https://tiktok.com/@username";
-
-    } else {
-
-        let vnName = name === 'Views' ? 'xem' : (name === 'Tim' ? 'tim' : 'yêu thích');
-
-        title.innerText = `Lượt ${vnName} TikTok`;
-        instruction.innerText = `Nhận ngay ${qty} lượt ${vnName} TikTok miễn phí`;
-        label.innerText = "Link Video TikTok của bạn";
-        hint.innerText = "Chấp nhận vt.tiktok.com hoặc link video dài";
-        input.placeholder = "https://vt.tiktok.com/...";
-    }
-
-    modal.classList.add('active');
-}
-
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-}
-
-// ================= SUBMIT =================
-
-async function submitToDiscord() {
-
-    const input = document.getElementById('tiktok-link');
-    const value = input.value.trim();
-
-    if (!value) {
-        return Swal.fire({
-            title: 'Thiếu thông tin',
-            text: 'Vui lòng nhập link!',
-            icon: 'warning'
-        });
-    }
-
-    if(currentService !== "RobloxFollow"){
-
-        if(!isValidTikTokLink(value)){
-            return Swal.fire({
-                title:'Link không hợp lệ',
-                text:'Sai định dạng link TikTok',
-                icon:'error'
-            });
-        }
-
-        const loading = document.getElementById('loadingOverlay');
-        loading.classList.add('active');
-
-        const exists = await checkTikTokVideo(value);
-
-        loading.classList.remove('active');
-
-        if(!exists){
-            return Swal.fire({
-                title:'Video không hợp lệ',
-                text:'Video có thể bị riêng tư, bị xóa hoặc link sai',
-                icon:'error'
-            });
-        }
-
-    }
-
-    const loading = document.getElementById('loadingOverlay');
-    loading.classList.add('active');
-
-    const payload = {
-        username: "Hệ Thống Viral",
-        embeds: [{
-            title: `🚀 ĐƠN HÀNG ${currentService.toUpperCase()}`,
-            color: 16111914,
-            fields: [
-                { name: "Dịch vụ", value: currentService, inline: true },
-                { name: "Số lượng", value: currentQuantity.toString(), inline: true },
-                { name: "Liên kết", value: "```" + value + "```" }
-            ],
-            footer: { text: "Yêu cầu lúc: " + new Date().toLocaleString() }
-        }]
-    };
-
-    try {
-
-        await fetch(WEBHOOKS[currentService], {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        const expire = Date.now() + COOLDOWN_TIME;
-        localStorage.setItem('tiktok_cooldown', expire);
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Thành công!',
-            text: 'Yêu cầu đang được xử lý.'
-        });
-
-        closeModal('tiktokModal');
-        startCooldownTimer(expire);
-
-    } catch {
-
-        Swal.fire({
-            title: 'Lỗi',
-            text: 'Không thể kết nối!',
-            icon: 'error'
-        });
-
-    } finally {
-
-        loading.classList.remove('active');
-
-    }
-
-}
-
-// ================= COOLDOWN =================
-
-function startCooldownTimer(exp) {
-
-    const btn = document.getElementById('btnSubmit');
-
-    const tick = () => {
-
-        const remain = exp - Date.now();
-
-        if (remain <= 0) {
-            btn.disabled = false;
-            btn.innerText = 'Gửi yêu cầu';
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerText = `Chờ ${Math.ceil(remain / 1000)}s`;
-
-        setTimeout(tick, 1000);
-    };
-
-    tick();
-}
-
-// ================= EFFECTS =================
-
-function initTyping() {
-
-    const el = document.querySelector('.typing-text');
-    if (!el) return;
-
-    const words = [
-        "TikTok Views",
-        "TikTok Tim",
-        "TikTok Favourite",
-        "TikTok Follow"
-    ];
-
-    let i = 0;
-    let j = 0;
-    let isDel = false;
-
-    const type = () => {
-
-        const curr = words[i % words.length];
-
-        el.innerHTML = isDel ? curr.substring(0, j--) : curr.substring(0, j++);
-
-        let speed = isDel ? 50 : 100;
-
-        if (!isDel && j === curr.length + 1) {
-
-            isDel = true;
-            speed = 2000;
-
-        } else if (isDel && j === 0) {
-
-            isDel = false;
-            i++;
-            speed = 500;
-        }
-
-        setTimeout(type, speed);
-    };
-
-    type();
-}
-
-function initStats() {
-
-    setInterval(() => {
-
-        const online = document.getElementById('online-users');
-
-        if (online)
-            online.innerText = Math.floor(Math.random() * 50) + 120;
-
-    }, 5000);
-}
-
-function checkCooldown() {
-
-    const exp = localStorage.getItem('tiktok_cooldown');
-
-    if (exp && Date.now() < exp)
-        startCooldownTimer(parseInt(exp));
-}
-
-// ================= INFO =================
-
-function showStatusModal(e) {
-    e.preventDefault();
-    Swal.fire({
-        title: 'Trạng thái',
-        text: 'Hệ thống: Hoạt động ổn định ✅',
-        icon: 'success'
-    });
-}
-
-function showTermsModal(e) {
-    e.preventDefault();
-    Swal.fire({
-        title: 'Điều khoản',
-        text: 'Mỗi lượt gửi cách nhau 5 phút.',
-        icon: 'info'
-    });
-}
+</body>
+</html>
