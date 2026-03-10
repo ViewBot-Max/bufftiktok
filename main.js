@@ -52,10 +52,10 @@ function openServiceModal(name, qty) {
 
     input.value = "";
 
-    if (name === 'RobloxFollow') {
-        title.innerText = "Roblox Follow";
-        instruction.innerText = `Nhận ngay ${qty} lượt theo dõi Roblox miễn phí`;
-        label.innerText = "Tên tài khoản Roblox";
+    if (name === 'TikTokFollow') {
+        title.innerText = "TikTok Follow";
+        instruction.innerText = `Nhận ngay ${qty} lượt theo dõi TikTok miễn phí`;
+        label.innerText = "Tên tài khoản TikTok";
         hint.innerText = "Nhập username Roblox có dấu @ (ví dụ: @robloxfreefollow)";
         input.placeholder = "@robloxfreefollow";
     } else {
@@ -87,7 +87,7 @@ async function submitToDiscord() {
         if (!isValidRobloxUsername(value)) {
             return Swal.fire({
                 title: 'Sai định dạng',
-                text: 'Username Roblox phải có dạng @username (ví dụ: @robloxfreefollow)',
+                text: 'Username TikTok phải có dạng @username (ví dụ: @robloxfreefollow)',
                 icon: 'error'
             });
         }
