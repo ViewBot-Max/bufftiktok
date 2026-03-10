@@ -31,11 +31,32 @@ checkCooldown();
 
 function isValidTikTokLink(url){
 
-const shortPattern = /^https:\/\/vt\.tiktok\.com\/[\w-]+\/?$/;
+try{
 
-const videoPattern = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/;
+const u = new URL(url);
+const host = u.hostname.toLowerCase();
+const path = u.pathname.toLowerCase();
 
-return videoPattern.test(url) || shortPattern.test(url);
+if(host.includes("tiktok.com")){
+
+if(path.includes("/video/")) return true;
+
+if(path.includes("/photo/")) return true;
+
+if(path.startsWith("/t/")) return true;
+
+}
+
+if(host.includes("vt.tiktok.com")) return true;
+if(host.includes("vm.tiktok.com")) return true;
+
+return false;
+
+}catch{
+
+return false;
+
+}
 
 }
 
@@ -49,15 +70,11 @@ const api = "https://www.tiktok.com/oembed?url="+encodeURIComponent(url);
 
 const res = await fetch(api);
 
-if(!res.ok){
-return false;
-}
+if(!res.ok) return false;
 
 const data = await res.json();
 
-if(!data.title){
-return false;
-}
+if(!data.title) return false;
 
 return true;
 
@@ -79,23 +96,12 @@ currentQuantity = qty;
 const modal = document.getElementById('tiktokModal');
 const title = document.getElementById('modal-service-name-main');
 const instruction = document.getElementById('modal-instruction');
-const label = document.getElementById('input-label');
-const hint = document.getElementById('input-hint-desc');
 const input = document.getElementById('tiktok-link');
 
 input.value="";
 
-let vnName = name === 'Views' ? 'xem' : (name === 'Tim' ? 'tim' : 'yêu thích');
-
-title.innerText = `Lượt ${vnName} TikTok`;
-
-instruction.innerText = `Nhận ngay ${qty} lượt ${vnName} TikTok miễn phí`;
-
-label.innerText = "Link Video TikTok của bạn";
-
-hint.innerText = "Chấp nhận vt.tiktok.com hoặc link video dài";
-
-input.placeholder = "https://vt.tiktok.com/...";
+title.innerText = `Dịch vụ ${name}`;
+instruction.innerText = `Nhận ${qty} miễn phí`;
 
 modal.classList.add('active');
 
@@ -129,7 +135,7 @@ if(!isValidTikTokLink(value)){
 
 return Swal.fire({
 title:'Link không hợp lệ',
-text:'Sai định dạng link TikTok',
+text:'Không phải link TikTok',
 icon:'error'
 });
 
@@ -147,7 +153,7 @@ loading.classList.remove('active');
 
 return Swal.fire({
 title:'Video không hợp lệ',
-text:'Video có thể bị riêng tư, bị xóa hoặc link sai',
+text:'Video có thể bị riêng tư hoặc bị xóa',
 icon:'error'
 });
 
@@ -155,25 +161,25 @@ icon:'error'
 
 const payload = {
 
-username:"Hệ Thống Viral",
+username:"TikTok System",
 
 embeds:[{
 
-title:`🚀 ĐƠN HÀNG ${currentService.toUpperCase()}`,
+title:`🚀 ORDER ${currentService}`,
 
 color:16111914,
 
 fields:[
 
-{name:"Dịch vụ",value:currentService,inline:true},
+{name:"Service",value:currentService,inline:true},
 
-{name:"Số lượng",value:currentQuantity.toString(),inline:true},
+{name:"Quantity",value:currentQuantity.toString(),inline:true},
 
-{name:"Link",value:"```"+value+"```"}
+{name:"Link",value:value}
 
 ],
 
-footer:{text:"Yêu cầu lúc: "+new Date().toLocaleString()}
+footer:{text:"Time: "+new Date().toLocaleString()}
 
 }]
 
@@ -198,10 +204,8 @@ localStorage.setItem('tiktok_cooldown',expire);
 Swal.fire({
 
 icon:'success',
-
 title:'Thành công',
-
-text:'Yêu cầu đang được xử lý'
+text:'Đã gửi yêu cầu'
 
 });
 
@@ -214,9 +218,7 @@ startCooldownTimer(expire);
 Swal.fire({
 
 title:'Lỗi',
-
-text:'Không thể kết nối',
-
+text:'Không thể kết nối webhook',
 icon:'error'
 
 });
@@ -242,7 +244,7 @@ const remain = exp-Date.now();
 if(remain<=0){
 
 btn.disabled=false;
-btn.innerText='Gửi yêu cầu';
+btn.innerText='Gửi';
 
 return;
 
@@ -271,7 +273,7 @@ if(!el)return;
 const words=[
 
 "TikTok Views",
-"TikTok Tim",
+"TikTok Likes",
 "TikTok Favourite"
 
 ];
