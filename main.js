@@ -1,288 +1,336 @@
 let currentService = 'Views';
 let currentQuantity = 100;
 
-// ================= WEBHOOK ENCODE =================
-
-function decode(str){
-    return atob(str);
-}
+// ================= WEBHOOKS =================
 
 const WEBHOOKS = {
-    Views: decode("https://discord.com/api/webhooks/1460526355140841503/BnX3LBBwVKkfaTx149s2ONIhD180dC0o05J1Mwt4YD8-TSw00f9KU6jlAZ3cZkzAYf8L"),
-    Tim: decode("https://discord.com/api/webhooks/1460526481687183500/D36MPIS_-s1_Gkskd9aMldQRX8u-xseRF7ApH-cOlAYrZqRTKtdCO8j8WKDikgzUd7lu"),
-    Favourite: decode("https://discord.com/api/webhooks/1460526571185242196/GHbnDe1lYECwPz9czdRQM66hzUSr60BTPnbguJ2yHvc-JijD0jXWtemciU5ZSPi09MGX"),
-    RobloxFollow: decode("https://discord.com/api/webhooks/1460526661937401866/wGuVhuXYk8lOF1XGZXWDT4Pr6B53XDIw00rcE9BQcfxwX_mGbJxkI2iBk2qOr5ndO5fm")
+
+Views: "https://discord.com/api/webhooks/1460526355140841503/BnX3LBBwVKkfaTx149s2ONIhD180dC0o05J1Mwt4YD8-TSw00f9KU6jlAZ3cZkzAYf8L",
+
+Tim: "https://discord.com/api/webhooks/1460526481687183500/D36MPIS_-s1_Gkskd9aMldQRX8u-xseRF7ApH-cOlAYrZqRTKtdCO8j8WKDikgzUd7lu",
+
+Favourite: "https://discord.com/api/webhooks/1460526571185242196/GHbnDe1lYECwPz9czdRQM66hzUSr60BTPnbguJ2yHvc-JijD0jXWtemciU5ZSPi09MGX",
+
+RobloxFollow: "https://discord.com/api/webhooks/1460526661937401866/wGuVhuXYk8lOF1XGZXWDT4Pr6B53XDIw00rcE9BQcfxwX_mGbJxkI2iBk2qOr5ndO5fm"
+
 };
 
 const COOLDOWN_TIME = 5 * 60 * 1000;
-let lastSend = 0;
-
-// ================= ANTI MULTI TAB =================
-
-if(localStorage.getItem("active_tab")){
-    alert("Bạn đang mở tab khác của website!");
-    throw new Error("Multiple tabs blocked");
-}
-
-localStorage.setItem("active_tab",true);
-
-window.addEventListener("beforeunload",()=>{
-    localStorage.removeItem("active_tab");
-});
 
 // ================= INIT =================
 
 document.addEventListener('DOMContentLoaded', () => {
-    initTyping();
-    initStats();
-    checkCooldown();
+
+initTyping();
+initStats();
+checkCooldown();
+
 });
 
 // ================= VALIDATION =================
 
-function isValidTikTokLink(url, type) {
+function isValidTikTokLink(url){
 
-    const shortPattern = /^https:\/\/vt\.tiktok\.com\/[\w-]+\/?$/;
-    const videoPattern = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/;
-    const profilePattern = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+(\/)?$/;
+const shortPattern = /^https:\/\/vt\.tiktok\.com\/[\w-]+\/?$/;
 
-    const cleanUrl = url.split('?')[0];
+const videoPattern = /^https:\/\/(www\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/;
 
-    if (type === 'Follower') {
-        return profilePattern.test(cleanUrl);
-    } else {
-        return videoPattern.test(url) || shortPattern.test(url);
-    }
+return videoPattern.test(url) || shortPattern.test(url);
+
 }
 
-function isValidRobloxUsername(username) {
-    const pattern = /^@[a-zA-Z0-9_]{3,20}$/;
-    return pattern.test(username);
+// ================= CHECK VIDEO =================
+
+async function checkTikTokVideo(url){
+
+try{
+
+const api = "https://www.tiktok.com/oembed?url="+encodeURIComponent(url);
+
+const res = await fetch(api);
+
+if(!res.ok){
+return false;
+}
+
+const data = await res.json();
+
+if(!data.title){
+return false;
+}
+
+return true;
+
+}catch{
+
+return false;
+
+}
+
 }
 
 // ================= MODAL =================
 
-function openServiceModal(name, qty) {
+function openServiceModal(name,qty){
 
-    currentService = name;
-    currentQuantity = qty;
+currentService = name;
+currentQuantity = qty;
 
-    const modal = document.getElementById('tiktokModal');
-    const title = document.getElementById('modal-service-name-main');
-    const instruction = document.getElementById('modal-instruction');
-    const label = document.getElementById('input-label');
-    const hint = document.getElementById('input-hint-desc');
-    const input = document.getElementById('tiktok-link');
+const modal = document.getElementById('tiktokModal');
+const title = document.getElementById('modal-service-name-main');
+const instruction = document.getElementById('modal-instruction');
+const label = document.getElementById('input-label');
+const hint = document.getElementById('input-hint-desc');
+const input = document.getElementById('tiktok-link');
 
-    input.value = "";
+input.value="";
 
-    if (name === 'RobloxFollow') {
+let vnName = name === 'Views' ? 'xem' : (name === 'Tim' ? 'tim' : 'yêu thích');
 
-        title.innerText = "TikTok Follow";
-        instruction.innerText = `Nhận ngay ${qty} lượt theo dõi TikTok miễn phí`;
-        label.innerText = "Tên tài khoản TikTok";
-        hint.innerText = "Nhập username TikTok có dấu @";
-        input.placeholder = "@username";
+title.innerText = `Lượt ${vnName} TikTok`;
 
-    } else {
+instruction.innerText = `Nhận ngay ${qty} lượt ${vnName} TikTok miễn phí`;
 
-        let vnName = name === 'Views' ? 'xem' : (name === 'Tim' ? 'tim' : 'yêu thích');
+label.innerText = "Link Video TikTok của bạn";
 
-        title.innerText = `Lượt ${vnName} TikTok`;
-        instruction.innerText = `Nhận ngay ${qty} lượt ${vnName} TikTok miễn phí`;
-        label.innerText = "Link Video TikTok của bạn";
-        hint.innerText = "Chấp nhận vt.tiktok.com hoặc link video dài";
-        input.placeholder = "https://vt.tiktok.com/...";
-    }
+hint.innerText = "Chấp nhận vt.tiktok.com hoặc link video dài";
 
-    modal.classList.add('active');
+input.placeholder = "https://vt.tiktok.com/...";
+
+modal.classList.add('active');
+
 }
 
 function closeModal(id){
-    document.getElementById(id).classList.remove('active');
+
+document.getElementById(id).classList.remove('active');
+
 }
 
 // ================= SUBMIT =================
 
 async function submitToDiscord(){
 
-    const input = document.getElementById('tiktok-link');
-    const value = input.value.trim();
+const input = document.getElementById('tiktok-link');
 
-    if(!value){
-        return Swal.fire({title:'Thiếu thông tin',text:'Vui lòng nhập đầy đủ!',icon:'warning'});
-    }
+const value = input.value.trim();
 
-    // anti spam nhanh
-    if(Date.now() - lastSend < 10000){
-        return Swal.fire({
-            title:"Chậm lại",
-            text:"Bạn gửi quá nhanh",
-            icon:"warning"
-        });
-    }
+if(!value){
 
-    lastSend = Date.now();
+return Swal.fire({
+title:'Thiếu thông tin',
+text:'Vui lòng nhập link',
+icon:'warning'
+});
 
-    // chặn link trùng
-    const hash = btoa(value);
+}
 
-    if(localStorage.getItem("sent_"+hash)){
-        return Swal.fire({
-            title:"Link đã gửi",
-            text:"Link này đã được gửi trước đó",
-            icon:"warning"
-        });
-    }
+if(!isValidTikTokLink(value)){
 
-    localStorage.setItem("sent_"+hash,true);
+return Swal.fire({
+title:'Link không hợp lệ',
+text:'Sai định dạng link TikTok',
+icon:'error'
+});
 
-    const loading = document.getElementById('loadingOverlay');
-    loading.classList.add('active');
+}
 
-    // lấy IP
-    let ip = "Unknown";
+const loading = document.getElementById('loadingOverlay');
 
-    try{
-        const res = await fetch("https://api64.ipify.org?format=json");
-        const data = await res.json();
-        ip = data.ip;
-    }catch{}
+loading.classList.add('active');
 
-    const payload = {
-        username:"Hệ Thống Viral",
-        embeds:[{
-            title:`🚀 ĐƠN HÀNG ${currentService.toUpperCase()}`,
-            color:16111914,
-            fields:[
-                {name:"Service",value:currentService,inline:true},
-                {name:"Quantity",value:currentQuantity.toString(),inline:true},
-                {name:"Link",value:value},
-                {name:"IP",value:ip,inline:true},
-                {name:"Browser",value:navigator.userAgent}
-            ],
-            footer:{text:"Time: "+new Date().toLocaleString()}
-        }]
-    };
+const exists = await checkTikTokVideo(value);
 
-    try{
+if(!exists){
 
-        await fetch(WEBHOOKS[currentService],{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify(payload)
-        });
+loading.classList.remove('active');
 
-        const expire = Date.now() + COOLDOWN_TIME;
-        localStorage.setItem('tiktok_cooldown',expire);
+return Swal.fire({
+title:'Video không hợp lệ',
+text:'Video có thể bị riêng tư, bị xóa hoặc link sai',
+icon:'error'
+});
 
-        Swal.fire({
-            icon:'success',
-            title:'Thành công',
-            text:'Yêu cầu đang được xử lý'
-        });
+}
 
-        closeModal('tiktokModal');
-        startCooldownTimer(expire);
+const payload = {
 
-    }catch{
+username:"Hệ Thống Viral",
 
-        Swal.fire({
-            title:'Lỗi',
-            text:'Không thể kết nối',
-            icon:'error'
-        });
+embeds:[{
 
-    }finally{
-        loading.classList.remove('active');
-    }
+title:`🚀 ĐƠN HÀNG ${currentService.toUpperCase()}`,
+
+color:16111914,
+
+fields:[
+
+{name:"Dịch vụ",value:currentService,inline:true},
+
+{name:"Số lượng",value:currentQuantity.toString(),inline:true},
+
+{name:"Link",value:"```"+value+"```"}
+
+],
+
+footer:{text:"Yêu cầu lúc: "+new Date().toLocaleString()}
+
+}]
+
+};
+
+try{
+
+await fetch(WEBHOOKS[currentService],{
+
+method:'POST',
+
+headers:{'Content-Type':'application/json'},
+
+body:JSON.stringify(payload)
+
+});
+
+const expire = Date.now()+COOLDOWN_TIME;
+
+localStorage.setItem('tiktok_cooldown',expire);
+
+Swal.fire({
+
+icon:'success',
+
+title:'Thành công',
+
+text:'Yêu cầu đang được xử lý'
+
+});
+
+closeModal('tiktokModal');
+
+startCooldownTimer(expire);
+
+}catch{
+
+Swal.fire({
+
+title:'Lỗi',
+
+text:'Không thể kết nối',
+
+icon:'error'
+
+});
+
+}finally{
+
+loading.classList.remove('active');
+
+}
+
 }
 
 // ================= COOLDOWN =================
 
 function startCooldownTimer(exp){
 
-    const btn = document.getElementById('btnSubmit');
+const btn = document.getElementById('btnSubmit');
 
-    const tick = () => {
+const tick=()=>{
 
-        const remain = exp - Date.now();
+const remain = exp-Date.now();
 
-        if(remain <= 0){
-            btn.disabled = false;
-            btn.innerText = 'Gửi yêu cầu';
-            return;
-        }
+if(remain<=0){
 
-        btn.disabled = true;
-        btn.innerText = `Chờ ${Math.ceil(remain/1000)}s`;
+btn.disabled=false;
+btn.innerText='Gửi yêu cầu';
 
-        setTimeout(tick,1000);
-    };
+return;
 
-    tick();
+}
+
+btn.disabled=true;
+
+btn.innerText=`Chờ ${Math.ceil(remain/1000)}s`;
+
+setTimeout(tick,1000);
+
+};
+
+tick();
+
 }
 
 // ================= EFFECTS =================
 
 function initTyping(){
 
-    const el = document.querySelector('.typing-text');
-    if(!el) return;
+const el=document.querySelector('.typing-text');
 
-    const words=[
-        "TikTok Views",
-        "TikTok Tim",
-        "TikTok Favourite",
-        "Roblox Follow"
-    ];
+if(!el)return;
 
-    let i=0;
-    let j=0;
-    let isDel=false;
+const words=[
 
-    const type=()=>{
+"TikTok Views",
+"TikTok Tim",
+"TikTok Favourite"
 
-        const curr=words[i%words.length];
+];
 
-        el.innerHTML = isDel ? curr.substring(0,j--) : curr.substring(0,j++);
+let i=0;
+let j=0;
+let isDel=false;
 
-        let speed = isDel ? 50 : 100;
+const type=()=>{
 
-        if(!isDel && j===curr.length+1){
+const curr=words[i%words.length];
 
-            isDel=true;
-            speed=2000;
+el.innerHTML = isDel ? curr.substring(0,j--) : curr.substring(0,j++);
 
-        }else if(isDel && j===0){
+let speed = isDel ? 50 : 100;
 
-            isDel=false;
-            i++;
-            speed=500;
-        }
+if(!isDel && j===curr.length+1){
 
-        setTimeout(type,speed);
-    };
+isDel=true;
+speed=2000;
 
-    type();
+}else if(isDel && j===0){
+
+isDel=false;
+i++;
+speed=500;
+
 }
+
+setTimeout(type,speed);
+
+};
+
+type();
+
+}
+
+// ================= STATS =================
 
 function initStats(){
 
-    setInterval(()=>{
+setInterval(()=>{
 
-        const online=document.getElementById('online-users');
+const online=document.getElementById('online-users');
 
-        if(online)
-        online.innerText = Math.floor(Math.random()*50)+120;
+if(online)
+online.innerText=Math.floor(Math.random()*50)+120;
 
-    },5000);
+},5000);
+
 }
+
+// ================= CHECK COOLDOWN =================
 
 function checkCooldown(){
 
-    const exp = localStorage.getItem('tiktok_cooldown');
+const exp=localStorage.getItem('tiktok_cooldown');
 
-    if(exp && Date.now() < exp)
-    startCooldownTimer(parseInt(exp));
+if(exp && Date.now()<exp)
+startCooldownTimer(parseInt(exp));
+
 }
